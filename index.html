@@ -1,0 +1,296 @@
+
+<h2 class="sr-only">FASEA Financial Adviser Exam Prep v3 — AI-powered MCQ and True/False practice from primary source documents</h2>
+
+<style>
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+.tc{cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.tc:hover{background:var(--color-background-secondary)!important;border-color:var(--color-border-secondary)!important}
+.ob{cursor:pointer;text-align:left;width:100%;transition:background 0.1s,border-color 0.1s}
+.ob:hover:not([disabled]){background:var(--color-background-secondary)!important}
+.ob:disabled{cursor:default}
+.qt-btn{transition:background 0.1s,border-color 0.1s}
+.dots span{animation:bk 1.2s infinite;display:inline-block}
+.dots span:nth-child(2){animation-delay:0.2s}
+.dots span:nth-child(3){animation-delay:0.4s}
+@keyframes bk{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+</style>
+
+<div id="s-home" style="padding:1rem 0">
+  <div style="margin-bottom:1.5rem">
+    <p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 4px;letter-spacing:0.1em;text-transform:uppercase">ASIC Financial Adviser Exam</p>
+    <h1 style="font-size:22px;font-weight:500;margin:0 0 6px">Exam Prep <span style="font-size:13px;font-weight:400;color:var(--color-text-tertiary)">v3</span></h1>
+    <p style="font-size:14px;color:var(--color-text-secondary);margin:0">AI-generated questions from ASIC, AUSTRAC, OAIC and TPB primary documents. Select topic and question type.</p>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:1.5rem">
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;flex:1;min-width:0">
+      <p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 2px">Attempted</p>
+      <p id="st-total" style="font-size:20px;font-weight:500;margin:0">0</p>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;flex:1;min-width:0">
+      <p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 2px">Correct</p>
+      <p id="st-correct" style="font-size:20px;font-weight:500;margin:0;color:var(--color-text-success)">0</p>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;flex:1;min-width:0">
+      <p style="font-size:11px;color:var(--color-text-tertiary);margin:0 0 2px">Accuracy</p>
+      <p id="st-pct" style="font-size:20px;font-weight:500;margin:0">—</p>
+    </div>
+  </div>
+
+  <div style="margin-bottom:1.25rem">
+    <p style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.07em">Question type</p>
+    <div style="display:flex;gap:8px">
+      <button id="qt-mcq" class="qt-btn" onclick="setQType('mcq')" style="padding:7px 16px;font-size:13px;border-radius:var(--border-radius-md);background:var(--color-text-primary);color:var(--color-background-primary);border:0.5px solid var(--color-text-primary)">MCQ</button>
+      <button id="qt-tf" class="qt-btn" onclick="setQType('tf')" style="padding:7px 16px;font-size:13px;border-radius:var(--border-radius-md)">True / False</button>
+    </div>
+  </div>
+
+  <p style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:0 0 8px;text-transform:uppercase;letter-spacing:0.07em">Select topic</p>
+  <div id="topic-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:8px"></div>
+</div>
+
+<div id="s-drill" style="padding:1rem 0;display:none">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem">
+    <button onclick="showHome()" style="font-size:13px;padding:5px 10px;border-radius:var(--border-radius-md)">← Topics</button>
+    <span id="d-label" style="font-size:13px;font-weight:500;color:var(--color-text-secondary)"></span>
+    <span id="d-qtype-badge" style="font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-tertiary)"></span>
+    <span style="flex:1"></span>
+    <span id="d-score" style="font-size:13px;color:var(--color-text-secondary)"></span>
+  </div>
+  <div id="d-loading" style="text-align:center;padding:3rem 0">
+    <p style="font-size:14px;color:var(--color-text-secondary);margin:0">Generating question<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+  </div>
+  <div id="d-error" style="display:none;background:var(--color-background-danger);border-radius:var(--border-radius-md);padding:12px 16px;color:var(--color-text-danger);font-size:14px;margin-bottom:1rem"></div>
+  <div id="d-qblock" style="display:none">
+    <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem">
+      <p id="q-text" style="font-size:15px;line-height:1.7;margin:0"></p>
+    </div>
+    <div id="q-opts" style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem"></div>
+    <div style="display:flex;gap:8px;margin-bottom:1.5rem">
+      <button id="btn-reveal" onclick="doReveal()" disabled style="flex:1;padding:10px 0;font-size:14px;border-radius:var(--border-radius-md);opacity:0.35;cursor:default">Reveal answer</button>
+      <button id="btn-next" onclick="doNext()" style="display:none;flex:1;padding:10px 0;font-size:14px;border-radius:var(--border-radius-md)">Next question →</button>
+    </div>
+    <div id="d-reveal" style="display:none">
+      <div id="verdict" style="border-radius:var(--border-radius-md);padding:10px 14px;font-size:14px;font-weight:500;margin-bottom:1rem"></div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1.25rem">
+        <p style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-tertiary);margin:0 0 8px">Reasoning</p>
+        <p id="q-reason" style="font-size:14px;line-height:1.7;margin:0 0 12px"></p>
+        <p id="q-ref" style="font-size:12px;color:var(--color-text-secondary);margin:0;border-top:0.5px solid var(--color-border-tertiary);padding-top:10px"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOPICS=[
+  {id:"corps-act",label:"Corporations Act",abbr:"CA",desc:"AFSL, advice types, conduct obligations, priority rule s.961J"},
+  {id:"code-of-ethics",label:"Code of Ethics",abbr:"CoE",desc:"12 Standards, 4 Domains, 5 Values — applied to scenarios"},
+  {id:"best-interests",label:"Best Interests Duty",abbr:"BID",desc:"s.961B, 7 safe harbour steps, appropriate advice, switching"},
+  {id:"soa-roa",label:"SOA / ROA / FSG",abbr:"SOA",desc:"When SOA required, 3 ROA situations, 'significantly different' test"},
+  {id:"tasa",label:"TASA & TPB Code",abbr:"TAX",desc:"Registration, 17 Code obligations, qualified tax relevant provider"},
+  {id:"aml-ctf",label:"AML / CTF",abbr:"AML",desc:"Item 54, special program, SMR misconceptions, red flags, PEPs"},
+  {id:"privacy",label:"Privacy Act",abbr:"PVY",desc:"All 13 APPs — APP 2, 6, 8, 12, 13 nuances, timeframes"},
+  {id:"conflicted",label:"Conflicted Remuneration",abbr:"CR",desc:"s.963A bans, insurance commissions, informed consent (9 Jul 2025)"},
+  {id:"behavioural",label:"Behavioural Finance",abbr:"BF",desc:"Client biases, System 1 vs 2, managing in practice"},
+  {id:"ethical",label:"Ethical Frameworks",abbr:"ETH",desc:"Rationalisation, ethical blindness, barriers to ethics"},
+];
+
+const KB=`CORPORATIONS ACT Ch 7:
+AFS licence: must carry on financial services business efficiently, honestly, fairly; adequate resources; risk management; dispute resolution. Financial product advice: personal advice (tailored) vs general advice (no tailored consideration). Retail vs wholesale client. Best interests duty s.961B(1). Safe harbour s.961B(2) — 7 steps: (1) identify objectives/financial situation/needs, (2) reasonable enquiries about relevant circumstances, (3) assess info gathered, (4) base judgments on client's circumstances, (5) take any step reasonably necessary to act in BID, (6) investigate products likely to meet needs, (7) any other step a reasonable person would regard as in BID. Completing 7 safe harbour steps satisfies s.961B but NOT necessarily the Code of Ethics BID (Code is broader). Appropriate advice s.961G: 2 tests — (a) fit for purpose (likely to achieve client's goals) AND (b) client is likely to be in a better position. "Better position" assessed at time advice given — NOT with hindsight. Client can be "better off" through improved understanding, realignment to risk tolerance, confidence about finances, or even being told no change needed. Benefit must be more than trivial. Warning obligation: if information appears incomplete/inaccurate → make enquiries; if still incomplete → warn client; warning must be given at same time and in same way as advice (include in SOA if SOA provided). Switching advice: must show net benefits from new product are better than existing, taking into account switching fees and adviser fees payable only if switch made. Priority rule s.961J: conflict between adviser/licensee interests and client's → prioritise client. Recommending employer's product OK if genuinely meets BID. But: disclosing a conflict or getting client consent to it is NOT ENOUGH — must avoid conflict. If conflict can't be avoided, don't provide advice. Cannot overservice to generate revenue. APL restriction: may need to consider non-APL products if those would better meet client's needs.
+
+SOA/ROA/FSG:
+FSG: required before or when providing financial services. SOA: required for all personal advice to retail clients. ROA — 3 situations: (1) FURTHER ADVICE: same providing entity gave previous SOA, client circumstances NOT significantly different, basis of advice not significantly different; (2) NO BUY/SELL: advice doesn't recommend acquisition/disposal of specific financial product, no investment strategy or contribution level modification, no remuneration for advice, conflicts disclosed; (3) SMALL INVESTMENT ADVICE: total financial investments ≤$15,000. ROA can be written, audio, or video. Must give ROA to client ONLY for small investment advice (mandatory). For further advice and no buy/sell — client may request copy within 7 years. ROA record retention: 7 years. "Significantly different" circumstances: new mortgage, divorce, new baby, major renovations, redundancy, significant income change, inheritance, sale of business, terminal illness/disability, retirement, partner's death, move to aged care. NOT significantly different: minor consistent salary increases (e.g. 2%/year = 13% over 6 years on high income), temporary injury (broken ankle, working from home). "Significantly different" basis: introducing new advice area = likely significantly different → new SOA required. Changing licensees: can use ROA for further advice only if you were the providing entity under old licensee (individual AR or corporate AR). Employed adviser under old licensee = need new SOA. Broad SOAs to enable future ROAs: breach of s.947B (clear concise effective), BID, Standard 1 Code, and may mislead client. ASIC reviews whole client file — not ROA in isolation.
+
+CODE OF ETHICS 2019 — 5 Values: Trustworthiness, Competence, Honesty, Fairness, Diligence. 4 Domains, 12 Standards:
+Domain 1 Ethical Behaviour: Std 1 comply with all laws (obligation exceeds minimum legal compliance); Std 2 integrity/BID/confidentiality/respectful; Std 3 no conflict of interest or duty (not breached by recommending employer product BUT IS breached if remuneration depends on volume/type of products recommended).
+Domain 2 Client Care: Std 4 free prior informed consent to advice relationship; Std 5 best interests/appropriate/client understands advice, benefits, costs, risks; Std 6 broad effects including family members not clients, longer-term, aged care.
+Domain 3 Quality Process: Std 7 client consent to all benefits adviser receives/fair/value for money; Std 8 complete accurate records including former clients; Std 9 good faith/competent/not misleading or deceptive.
+Domain 4 Professional: Std 10 dignity/courtesy/enhance profession; Std 11 appropriate knowledge/skills/when to decline or refer; Std 12 CPD.
+Code BID (Stds 2+5) BROADER than s.961B — completing 7 safe harbour steps may not satisfy Code. Code requires holistic well-being assessment: "will advice improve client's well-being?"
+
+TASA & TPB CODE:
+Only registered tax agents/BAS agents can provide tax agent services for a fee. "Tax (financial) advice services": financial planners providing advice reasonably likely to be relied upon for a taxation purpose must be registered with TPB or work under a registered tax agent. "Qualified tax relevant provider" = can provide tax financial advice services to retail clients. Paths to becoming qualified: (1) already registered with TPB as individual tax (financial) adviser; (2) relevant provider + completed specified courses in commercial law and taxation law; (3) provisional relevant provider who is ALSO an "existing provider" (s.1546A Corps Act) → deemed qualified until 31 Dec 2025, but MUST complete specified courses by 31 Dec 2025 to continue. Must also have AFS licensee authorisation to provide tax (financial) advice services to retail clients. TPB Code 5 categories, 17 obligations: Category 1 Honesty & Integrity: (1) honestly/integrity; (2) comply with tax laws personally; (3) account for money held on trust. Category 2 Independence: (4) act lawfully in best interests of client; (5) adequate conflict of interest management. Category 3 Confidentiality: (6) no disclosure without client permission (unless legal duty). Category 4 Competence: (7) provide services competently; (8) maintain knowledge/skills; (9) take reasonable care ascertaining client's state of affairs; (10) take reasonable care ensuring taxation laws applied correctly. Category 5 Other: (11) don't obstruct administration of tax laws; (12) advise client of rights/obligations; (13) maintain PI insurance; (14) respond to TPB timely; (15) don't employ disqualified entity; (16) no arrangements with disqualified entity; (17) comply with Code Determination. NEW Code Determination 2024 (8 obligations under item 17, from 1 Jan 2025 for large practitioners, 1 Jul 2025 for ≤100 employees): (a) uphold/promote ethical standards; (b) no false/misleading statements; (c) conflicts in government activities; (d) confidentiality in government dealings; (e) keep proper client records; (f) services on your behalf provided competently; (g) quality management systems; (h) keep clients informed.
+
+AML/CTF:
+Financial planners have AML/CTF obligations as AFSL holders making arrangements for persons to receive financial products/services = DESIGNATED SERVICE ITEM 54 (Table 1, s.6(2) AML/CTF Act). Financial planners providing ONLY item 54 = SPECIAL AML/CTF PROGRAM (reduced obligations, Chapter 5 Rules). Financial planners providing additional designated services = STANDARD AML/CTF PROGRAM. Special program CDD requirements: (1) collect and verify customer identification information; (2) identify and verify beneficial ownership; (3) identify whether customer is a PEP; (4) obtain info on purpose and intended nature of business relationship. ONGOING CDD does NOT apply to item 54 providers (s.36(3) AML/CTF Act). Must submit SMR to AUSTRAC when forming REASONABLE SUSPICION of money laundering, terrorism financing, or other offences (fraud, tax evasion, welfare fraud). Do NOT need conclusive evidence. 4 COMMON MISCONCEPTIONS about SMR: (1) "Product issuer will report instead" — WRONG, planners must also report and may have unique info; (2) "Need conclusive evidence" — WRONG, reasonable suspicion is sufficient; (3) "Reporting damages client relationship" — WRONG, no obligation to discontinue relationship after submitting SMR; (4) "Reporting means business did something wrong" — WRONG, reporting demonstrates compliance with AML/CTF obligations. TIPPING OFF s.123: cannot disclose to customer or other financial institutions that an SMR has been, is being, or will be lodged. SMR cannot be used as evidence in criminal proceedings s.124 — EXCEPTION: can be used in criminal proceedings for certain AML/CTF offences including the tipping off offence itself (s.123) and false/misleading information offence (s.136). WHOLESALE CLIENTS: AML/CTF Act makes NO distinction between wholesale and retail clients — must conduct CDD for both (unlike Corporations Act). PEPs: must screen for domestic AND foreign PEPs; must apply ADDITIONAL customer due diligence for PEPs. Overall AUSTRAC ML/TF risk rating for financial planning sector: MEDIUM (threat = medium, vulnerability = medium, consequences = minor). SMR offence breakdown: cyber-enabled fraud 51%, money laundering 21%, other fraud 20%, tax evasion 5%, welfare fraud 2%, terrorism financing 1%. TTR required for cash transactions ≥$10,000. Structured cash deposits (multiple deposits just below $10k at different branches) = red flag for money laundering. Red flags by stage: Stage 1 (relationship established): enquires about large cash deposits, complex trust structures beyond financial needs, reluctant to provide ID, asks how to evade tax. Stage 2 (information collected): documents not in expected formats/altered/inconsistent, unexplained wealth, unusual/uneconomic investments, unclear beneficial owners, misleading Centrelink, suspicious property arrangements, money in tax havens, name on sanctions/terrorism list. Stage 3 (advice provided): asks how to make insurance claim before insurable event occurs, implements advice without planner, establishing SMSF without showing source of funds. Stage 4 (products arranged): SMSF members/trustees change several times in short period, funds consolidated from several sources. Stage 5 (portfolio review): financial planner's email appears compromised, customer changes bank details by email after changing contact details, urgent email requests, structured/large cash deposits, radical change to financial strategy. Stage 6 (withdrawal/closure): quickly withdraws funds soon after initial investment, withdrawal request by email but usually contacts by phone, funds transfer to conflict zone, request to send funds to third party overseas.
+
+PRIVACY ACT 1988 — 13 APPs:
+APP 1: Open/transparent management — must have an APP privacy policy; make it available free of charge.
+APP 2: Anonymity and pseudonymity — individuals MUST have option to not identify themselves or use pseudonym when dealing with APP entity, UNLESS impracticable or legally required to identify.
+APP 3: Collection — only collect if REASONABLY NECESSARY. Sensitive information: requires CONSENT + reasonably necessary (higher threshold).
+APP 4: Unsolicited information — if cannot have collected under APP 3, must DESTROY or de-identify.
+APP 5: Collection notice — notify individual at or before collection (or ASAP after if not practicable).
+APP 6: Use/disclosure — primary purpose only. Secondary purpose: for SENSITIVE information must be DIRECTLY RELATED to primary purpose; for NON-SENSITIVE information must be RELATED to primary purpose. Exception: individual's reasonable expectation, or required by law, or permitted general/health situation.
+APP 7: Direct marketing — must not use for direct marketing without consent; must provide opt-out mechanism.
+APP 8: Cross-border disclosure — before disclosing to overseas recipient, must take reasonable steps to ensure recipient does not breach APPs. Exception: if recipient subject to substantially similar law AND individual can access mechanisms to enforce protection; OR individual expressly consented after being told APP 8 won't apply; OR required by Australian law.
+APP 9: Government identifiers — must not adopt government related identifier (e.g. TFN, Medicare number) as own identifier.
+APP 10: Quality — ensure information collected, used, or disclosed is accurate, up-to-date, complete.
+APP 11: Security — protect from misuse, interference, loss, unauthorised access, modification, disclosure; DESTROY or de-identify when no longer needed and not required by law to retain.
+APP 12: Access — must give access on request. Agency: must respond within 30 DAYS. Organisation: within REASONABLE PERIOD. Agency cannot charge for access request or giving access. Organisation can charge but charge must not be EXCESSIVE and cannot apply to making of request.
+APP 13: Correction — must correct if inaccurate/outdated/incomplete/irrelevant/misleading; same timeframes as APP 12 (agency 30 days, organisation reasonable period). Cannot charge for correction.
+
+CONFLICTED REMUNERATION:
+s.963A: any benefit reasonably likely to influence product recommended or advice given. BANNED: volume-based shelf fees, asset-based fees on borrowed amounts, commissions/rebates/incentives. Volume-based = PRESUMED conflicted. Grandfathered commissions ceased 1 Jan 2021. Non-monetary benefits also caught if influencing (hospitality, software, marketing support). Exceptions for non-monetary: value < $300 (if not given frequently), education/training, IT software/support. Insurance commissions: INFORMED CONSENT required from client before receiving commissions for general insurance, life risk insurance, or consumer credit insurance in personal advice situations. Applies from 9 Jul 2025. Must disclose BEFORE insurance issued: (a) insurer name; (b) rate as % range (general) or % (life/CCI); (c) frequency and period; (d) services to be provided; (e) statement that consent required by law; (f) consent is irrevocable. Verbal consent allowed but must have written record. Renewals: no new consent if rate/frequency same or lower AND original consent covered renewals. Records retained 5 years. Breach = civil penalty, banning, licence suspension. Does NOT apply: general advice only, non-monetary benefits, insurance sold before 9 Jul 2025.
+
+BEHAVIOURAL FINANCE:
+System 1 (fast/automatic/emotional, vulnerable to biases) vs System 2 (slow/deliberate/analytical). System 1 often hijacks System 2. Key biases: loss aversion (holds losers/sells winners → frame as long-term probability); overconfidence (trades too much → present evidence of underperformance); anchoring (fixates on purchase price → redirect to fundamentals); availability/recency (overweights recent events → present long-term data); confirmation bias (ignores contrary data → balanced evidence); herding (follows crowd → rules before market moves); status quo bias (resists change → frame inaction as choice with consequences); mental accounting (treats money by source → bucket approach); disposition effect (sells winners early → systematic rebalancing).
+
+ETHICAL FRAMEWORKS:
+Rationalisation 6 categories: denial of responsibility, denial of injury, denial of victim, social weighting, appeal to higher loyalty, metaphor of the ledger. Ethical blindness (Bazerman/Tenbrunsel) 5 blind spots: ill-conceived goals, motivated blindness, indirect blindness, slippery slope, overvaluing outcomes.`;
+
+const SYS_MCQ=`You generate FASEA Financial Adviser Exam MCQ questions. Return ONLY valid JSON — no markdown, no backticks, no preamble.
+
+KNOWLEDGE BASE:
+${KB}
+
+Return this exact JSON:
+{"question":"Realistic scenario with fictional names/amounts/dates. Test application of law to facts.","options":{"A":"...","B":"...","C":"...","D":"..."},"correct":"B","reasoning":"Why correct is right. Why each distractor is wrong. Specific legislative section/standard/APP numbers.","reference":"e.g. s.961B(2) Corporations Act / Standard 3 Code of Ethics / APP 6 Privacy Act 1988 / s.123 AML/CTF Act / AUSTRAC INFO 268"}
+
+Challenging plausible distractors. Include specific dollar amounts, dates, fictional names. Test nuance and application.`;
+
+const SYS_TF=`You generate FASEA Financial Adviser Exam True/False questions. Return ONLY valid JSON — no markdown, no backticks, no preamble.
+
+KNOWLEDGE BASE:
+${KB}
+
+Good T/F questions hinge on a specific technical point that sounds plausible but is wrong (or counterintuitive but correct). Good topics: AML/CTF misconceptions (product issuer reporting, evidence standard, tipping off details), APP nuances (sensitive vs non-sensitive secondary purpose, anonymity requirement, agency vs organisation timeframes), BID (hindsight rule, warning obligation, switching net benefits, disclosure vs avoidance of conflicts), ROA rules (mandatory delivery, 7-year retention, changing licensees), Code of Ethics vs s.961B difference.
+
+Return this exact JSON:
+{"question":"A clear precise statement that is true or false. Include scenario context where it adds nuance.","options":{"A":"True","B":"False"},"correct":"A","reasoning":"Full explanation citing specific provision. If false, explain the correct rule. If true, explain why the counterintuitive answer is actually correct.","reference":"e.g. s.36(3) AML/CTF Act / APP 6 Privacy Act 1988 / Standard 5 Code of Ethics / AUSTRAC INFO"}`;
+
+let S={topic:null,qtype:'mcq',question:null,selected:null,revealed:false,scores:{},total:0,correct:0};
+
+function sc(id){return S.scores[id]||{correct:0,total:0}}
+
+function setQType(t){
+  S.qtype=t;
+  const on='background:var(--color-text-primary);color:var(--color-background-primary);border:0.5px solid var(--color-text-primary)';
+  const off='';
+  document.getElementById('qt-mcq').style.cssText=t==='mcq'?on:off;
+  document.getElementById('qt-tf').style.cssText=t==='tf'?on:off;
+}
+
+function renderGrid(){
+  document.getElementById('topic-grid').innerHTML=TOPICS.map(t=>{
+    const s=sc(t.id),pct=s.total>0?Math.round(s.correct/s.total*100):null;
+    return`<div class="tc" onclick="startDrill('${t.id}')" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0">
+          <span style="font-size:10px;font-weight:500;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:2px 7px;border-radius:var(--border-radius-md);flex-shrink:0">${t.abbr}</span>
+          <p style="font-size:13px;font-weight:500;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.label}</p>
+        </div>
+        ${pct!==null?`<span style="font-size:11px;font-weight:500;color:var(--color-text-success);flex-shrink:0">${pct}%</span>`:''}
+      </div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.5">${t.desc}</p>
+      ${s.total>0?`<p style="font-size:11px;color:var(--color-text-tertiary);margin:6px 0 0">${s.correct}/${s.total} correct</p>`:''}
+    </div>`;
+  }).join('');
+}
+
+function updateHomeStats(){
+  document.getElementById('st-total').textContent=S.total;
+  document.getElementById('st-correct').textContent=S.correct;
+  document.getElementById('st-pct').textContent=S.total>0?Math.round(S.correct/S.total*100)+'%':'—';
+}
+
+function showHome(){
+  document.getElementById('s-drill').style.display='none';
+  document.getElementById('s-home').style.display='block';
+  renderGrid();updateHomeStats();
+}
+
+function startDrill(id){
+  S.topic=TOPICS.find(t=>t.id===id);S.selected=null;S.revealed=false;
+  document.getElementById('s-home').style.display='none';
+  document.getElementById('s-drill').style.display='block';
+  document.getElementById('d-label').textContent=S.topic.label;
+  document.getElementById('d-qtype-badge').textContent=S.qtype==='mcq'?'MCQ':'True / False';
+  updateDScore();genQuestion();
+}
+
+function updateDScore(){
+  const s=sc(S.topic.id);
+  document.getElementById('d-score').textContent=s.total>0?`${s.correct}/${s.total} correct`:'';
+}
+
+async function genQuestion(){
+  S.question=null;S.selected=null;S.revealed=false;
+  document.getElementById('d-loading').style.display='block';
+  document.getElementById('d-error').style.display='none';
+  document.getElementById('d-qblock').style.display='none';
+  document.getElementById('d-reveal').style.display='none';
+  const sys=S.qtype==='mcq'?SYS_MCQ:SYS_TF;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:sys,
+        messages:[{role:'user',content:`Generate a challenging FASEA exam ${S.qtype==='mcq'?'MCQ':'True/False'} question on: ${S.topic.label}. Focus on: ${S.topic.desc}. ${S.qtype==='mcq'?'Use a specific realistic scenario with fictional client details. Distractors must be plausible.':'Statement should hinge on a specific technical point. Avoid obvious questions.'}`}]
+      })
+    });
+    const d=await r.json();
+    const raw=d.content[0].text.replace(/```json|```/g,'').trim();
+    S.question=JSON.parse(raw);renderQ();
+  }catch(e){
+    document.getElementById('d-loading').style.display='none';
+    document.getElementById('d-error').style.display='block';
+    document.getElementById('d-error').textContent='Could not generate question — check connection and try again.';
+    console.error(e);
+  }
+}
+
+function renderQ(){
+  document.getElementById('d-loading').style.display='none';
+  document.getElementById('q-text').textContent=S.question.question;
+  document.getElementById('q-opts').innerHTML=Object.entries(S.question.options).map(([k,v])=>`
+    <button class="ob" id="opt-${k}" onclick="pickOpt('${k}')"
+      style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px 14px;font-size:14px;line-height:1.5;color:var(--color-text-primary)">
+      <span style="font-weight:500;color:var(--color-text-secondary);margin-right:8px">${k}.</span>${v}
+    </button>`).join('');
+  const br=document.getElementById('btn-reveal');
+  br.disabled=true;br.style.opacity='0.35';br.style.cursor='default';
+  document.getElementById('btn-next').style.display='none';
+  document.getElementById('d-reveal').style.display='none';
+  document.getElementById('d-qblock').style.display='block';
+}
+
+function pickOpt(k){
+  if(S.revealed)return;S.selected=k;
+  Object.keys(S.question.options).forEach(o=>{
+    const b=document.getElementById('opt-'+o);
+    b.style.background=o===k?'var(--color-background-secondary)':'var(--color-background-primary)';
+    b.style.borderColor=o===k?'var(--color-border-primary)':'var(--color-border-tertiary)';
+  });
+  const br=document.getElementById('btn-reveal');
+  br.disabled=false;br.style.opacity='1';br.style.cursor='pointer';
+}
+
+function doReveal(){
+  if(!S.selected||S.revealed)return;S.revealed=true;
+  const q=S.question,ok=S.selected===q.correct;
+  const s=sc(S.topic.id);
+  S.scores[S.topic.id]={correct:s.correct+(ok?1:0),total:s.total+1};
+  S.total++;if(ok)S.correct++;updateDScore();
+  Object.keys(q.options).forEach(k=>{
+    const b=document.getElementById('opt-'+k);b.disabled=true;
+    if(k===q.correct){b.style.background='var(--color-background-success)';b.style.borderColor='var(--color-border-success)';b.style.color='var(--color-text-success)'}
+    else if(k===S.selected){b.style.background='var(--color-background-danger)';b.style.borderColor='var(--color-border-danger)';b.style.color='var(--color-text-danger)'}
+  });
+  const v=document.getElementById('verdict');
+  v.style.background=ok?'var(--color-background-success)':'var(--color-background-danger)';
+  v.style.color=ok?'var(--color-text-success)':'var(--color-text-danger)';
+  v.textContent=ok?'Correct':'Incorrect — correct answer was '+q.correct;
+  document.getElementById('q-reason').textContent=q.reasoning;
+  document.getElementById('q-ref').textContent=q.reference;
+  document.getElementById('d-reveal').style.display='block';
+  document.getElementById('btn-reveal').style.display='none';
+  document.getElementById('btn-next').style.display='';
+}
+
+function doNext(){genQuestion()}
+document.getElementById('s-drill').style.display='none';
+renderGrid();
+</script>
